@@ -1,5 +1,6 @@
 import joblib
 from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
 
 from data_prep import load_and_prepare_data
@@ -8,8 +9,8 @@ def train_and_save_model():
     print("Loading and preparing data...")
     X_train, X_test, y_train, y_test = load_and_prepare_data("../data/data.csv")
     
-    print(f"Training Random Forest model on {len(X_train)} rows...")
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    print(f"Training XGBoost model on {len(X_train)} rows...")
+    model = XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=5, random_state=42)
     model.fit(X_train, y_train)
     
     print("Evaluating model...")
