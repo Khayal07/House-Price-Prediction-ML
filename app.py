@@ -2,6 +2,7 @@ import gradio as gr
 import joblib
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+import numpy as np
 
 model = joblib.load('src/model.pkl')
 
@@ -16,22 +17,27 @@ def predict_price(bedrooms, bathrooms, sqft_living, sqft_above, city_name):
     city_encoded = le.transform([city_name])[0]
     
     input_data = pd.DataFrame([{
-            'bedrooms': bedrooms,
-            'bathrooms': bathrooms,
-            'sqft_living': sqft_living,
-            'sqft_lot': 8000,       # Average
-            'floors': 1.5,          # Average
-            'waterfront': 0,        # No
-            'view': 0,              # No
-            'condition': 3,         # Average
-            'sqft_above': sqft_above,
-            'sqft_basement': 0,
-            'yr_built': 1970,       # Average
-            'yr_renovated': 0,
-            'city': city_encoded
-        }])
+        'bedrooms': bedrooms,
+        'bathrooms': bathrooms,
+        'sqft_living': sqft_living,
+        'sqft_lot': 8000,
+        'floors': 1.5,
+        'waterfront': 0,
+        'view': 0,
+        'condition': 3,
+        'sqft_above': sqft_above,
+        'sqft_basement': 0,
+        'yr_built': 1970,
+        'yr_renovated': 0,
+        'city': city_encoded,
+        'house_age': 2026 - 1970,   # new column
+        'is_renovated': 0,          # new column
+        'total_area': sqft_living + 8000 # new column
+    }])
     
-    prediction = model.predict(input_data)[0]
+    prediction_log = model.predict(input_data)[0]
+    
+    prediction = np.expm1(prediction_log)
     
     return f"${prediction:,.2f}"
 

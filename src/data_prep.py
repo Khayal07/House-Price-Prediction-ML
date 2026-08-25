@@ -4,9 +4,9 @@ from sklearn.preprocessing import LabelEncoder
 
 def load_and_prepare_data(filepath="data/data.csv"):
     """
-    Loads raw data, cleans it, removes outliers, and splits into train/test sets.
+    Loads raw data, performs feature engineering, removes outliers, 
+    and splits into train/test sets.
     """
-    
     df = pd.read_csv(filepath)
     
     columns_to_drop = ['date', 'street', 'statezip', 'country']
@@ -15,7 +15,16 @@ def load_and_prepare_data(filepath="data/data.csv"):
     if 'city' in df.columns:
         df['city'] = LabelEncoder().fit_transform(df['city'])
         
-    df = df[(df['price'] > 0) & (df['price'] < 2_000_000)]
+    # 4. Remove outliers (prices that are 0 or extremely high)
+    df = df[(df['price'] > 0) & (df['price'] < 2_000_000)].copy()
+    
+
+    df['house_age'] = 2026 - df['yr_built']
+    
+    df['is_renovated'] = (df['yr_renovated'] > 0).astype(int)
+    
+    df['total_area'] = df['sqft_living'] + df['sqft_lot']
+    # --------------------------------
     
     X = df.drop(columns=['price'])
     y = df['price']
@@ -26,5 +35,4 @@ def load_and_prepare_data(filepath="data/data.csv"):
 
 if __name__ == "__main__":
     X_train, X_test, y_train, y_test = load_and_prepare_data("../data/data.csv")
-    print(f"Data prep successful! Train set shape: {X_train.shape}")
-    
+    print(f"Data prep successful! Train set shape with new features: {X_train.shape}")
